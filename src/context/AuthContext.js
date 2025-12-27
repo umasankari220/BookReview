@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 const AuthContext = createContext();
 
 const authReducer = (state, action) => {
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       // Verify token validity
-      axios.get('/api/auth/profile', {
+      axios.get(`${API_BASE_URL}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -62,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
       dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
       return { success: true };
     } catch (error) {
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post('/api/auth/register', { name, email, password });
+      const res = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password });
       dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
       return { success: true };
     } catch (error) {
