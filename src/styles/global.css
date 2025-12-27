@@ -172,3 +172,33 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gradient-secondary);
 }
+
+/* ===== MOBILE RESPONSIVE FIX ===== */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .glass,
+  .login-card,
+  .form-container {
+    width: 100% !important;
+    max-width: 90% !important;
+    padding: 1.5rem !important;
+    margin: auto;
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+    text-align: center;
+  }
+
+  input {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+}
