@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const AuthContext = createContext();
 
@@ -24,10 +24,7 @@ const authReducer = (state, action) => {
         loading: false
       };
     case 'SET_LOADING':
-      return {
-        ...state,
-        loading: action.payload
-      };
+      return { ...state, loading: action.payload };
     default:
       return state;
   }
@@ -42,72 +39,67 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token validity
-      axios.get(`${API_BASE_URL}/auth/profile`, {
+    if (!token) {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+
+    axios
+      .get(`${API_BASE_URL}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-        .then(res => {
-          dispatch({
-            type: 'LOGIN_SUCCESS',
-            payload: { ...res.data, token }
-          });
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-          dispatch({ type: 'SET_LOADING', payload: false });
+      .then(res => {
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { ...res.data, token }
         });
-    } else {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        dispatch({ type: 'SET_LOADING', payload: false });
+      });
   }, []);
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
+        email,
+        password
+      });
       dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Login failed'
       };
     }
   };
 
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password });
+      const res = await axios.post(`${API_BASE_URL}/auth/register`, {
+        name,
+        email,
+        password
+      });
       dispatch({ type: 'LOGIN_SUCCESS', payload: res.data });
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed'
       };
     }
   };
 
-  const logout = () => {
-    dispatch({ type: 'LOGOUT' });
-  };
+  const logout = () => dispatch({ type: 'LOGOUT' });
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      register,
-      logout
-    }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
