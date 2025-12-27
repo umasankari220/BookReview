@@ -1,16 +1,14 @@
 import axios from 'axios';
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || 'https://backend-5v8g.onrender.com/api';
+  process.env.REACT_APP_API_URL ||
+  'https://backend-5v8g.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
-// Attach token
+// Add token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,7 +20,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// BOOKS
+// Books API
 export const booksAPI = {
   getAll: (params) => api.get('/books', { params }),
   getById: (id) => api.get(`/books/${id}`),
@@ -31,7 +29,7 @@ export const booksAPI = {
   delete: (id) => api.delete(`/books/${id}`)
 };
 
-// REVIEWS
+// Reviews API
 export const reviewsAPI = {
   getByBook: (bookId) => api.get(`/reviews/book/${bookId}`),
   getUserReviews: () => api.get('/reviews/user'),
@@ -40,7 +38,7 @@ export const reviewsAPI = {
   delete: (id) => api.delete(`/reviews/${id}`)
 };
 
-// Handle auth expiry
+// Handle token expiration
 api.interceptors.response.use(
   (response) => response,
   (error) => {
